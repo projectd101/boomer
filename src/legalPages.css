@@ -1,0 +1,239 @@
+/* =================================
+   GET STARTED BUTTON (Sign In copy, shown in hero)
+================================= */
+
+.get-started-button {
+  margin: 22px auto 0;
+}
+
+.hero .get-started-button {
+  display: inline-flex;
+}
+
+/* Header brand is now a <Link> (react-router) instead of a <div> so users
+   can click the logo to return home — reset default anchor styling. */
+.brand {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* =================================
+   SITE FOOTER
+================================= */
+
+.site-footer {
+  margin-top: 60px;
+  border-top: 1px solid #1a1a1a;
+  background: #0a0a0a;
+}
+
+.site-footer-inner {
+  width: min(1180px, calc(100% - 80px));
+  margin: 0 auto;
+  padding: 32px 0 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  text-align: center;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  opacity: 0.7;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 22px;
+}
+
+.footer-links a {
+  color: #999;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  letter-spacing: 0.2px;
+  transition: color 0.15s ease;
+}
+
+.footer-links a:hover {
+  color: #a7ff00;
+}
+
+.footer-copyright {
+  margin: 0;
+  color: #444;
+  font-size: 10px;
+  letter-spacing: 0.4px;
+}
+
+@media (max-width: 850px) {
+  .site-footer-inner {
+    width: calc(100% - 40px);
+  }
+}
+
+/* =================================
+   LEGAL / INFO PAGES
+   (About, Contact, Terms, Privacy)
+================================= */
+
+.legal-page {
+  width: min(760px, calc(100% - 80px));
+  margin: 0 auto;
+  padding: 10px 0 60px;
+}
+
+.legal-title {
+  margin: 10px 0 6px;
+  font-size: clamp(32px, 4.5vw, 46px);
+  font-weight: 900;
+  letter-spacing: -1.5px;
+  line-height: 1.05;
+}
+
+.legal-updated {
+  margin: 0 0 24px;
+  color: #555;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+.legal-intro {
+  margin: 0 0 32px;
+  color: #bbb;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+.legal-subheading {
+  margin: 34px 0 10px;
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: -0.3px;
+}
+
+.legal-body {
+  margin: 0 0 14px;
+  color: #999;
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.legal-body strong {
+  color: #ddd;
+}
+
+.legal-body a,
+.legal-intro a {
+  color: #a7ff00;
+  text-decoration: none;
+}
+
+.legal-body a:hover,
+.legal-intro a:hover {
+  text-decoration: underline;
+}
+
+.legal-steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0 0 20px;
+}
+
+.legal-step {
+  padding: 20px;
+  border: 1px solid #1e1e1e;
+  border-radius: 12px;
+  background: #101010;
+}
+
+.legal-step-number {
+  display: block;
+  margin-bottom: 10px;
+  color: #a7ff00;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+}
+
+.legal-step h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: -0.3px;
+}
+
+.legal-step p {
+  margin: 0;
+  color: #888;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+@media (max-width: 850px) {
+  .legal-page {
+    width: calc(100% - 40px);
+  }
+
+  .legal-steps {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =================================
+   CONTACT PAGE GRID
+================================= */
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0 0 20px;
+}
+
+.contact-card {
+  padding: 22px;
+  border: 1px solid #1e1e1e;
+  border-radius: 12px;
+  background: #101010;
+}
+
+.contact-card h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: -0.3px;
+}
+
+.contact-card p {
+  margin: 0 0 14px;
+  color: #888;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.contact-link {
+  display: inline-block;
+  color: #a7ff00;
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.contact-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 850px) {
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+}
