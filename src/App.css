@@ -252,7 +252,7 @@ button {
 .hero {
   width: min(1180px, calc(100% - 80px));
   margin: 0 auto;
-  padding: 30px 0 40px;
+  padding: 16px 0 8px;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 380px;
   align-items: center;
@@ -270,10 +270,10 @@ button {
 
 .hero h1 {
   margin: 0;
-  font-size: clamp(32px, 3.6vw, 48px);
+  font-size: clamp(28px, 3vw, 40px);
   line-height: 0.95;
   font-weight: 900;
-  letter-spacing: -2.5px;
+  letter-spacing: -2px;
 }
 
 .hero-line-one,
@@ -282,7 +282,7 @@ button {
 }
 
 .hero-line-one {
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .hero-line-two {
@@ -290,34 +290,14 @@ button {
 }
 
 .hero-description {
-  margin: 16px 0 0;
+  margin: 6px 0 0;
   color: #777;
   font-size: 14px;
   max-width: 400px;
 }
 
 .hero-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 24px;
-  padding: 14px 22px;
-  border: none;
-  border-radius: 8px;
-  background: #a7ff00;
-  color: #000;
-  font-size: 13px;
-  font-weight: 900;
-  cursor: pointer;
-  transition: transform 0.18s ease;
-}
-
-.hero-cta:hover {
-  transform: translateY(-2px);
-}
-
-.hero-cta span {
-  font-size: 16px;
+  display: none;
 }
 
 .hero-visual {
@@ -325,7 +305,7 @@ button {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  height: 340px;
+  height: 200px;
 }
 
 .hero-visual-glow {
@@ -351,12 +331,12 @@ button {
 .titles-section {
   position: relative;
   width: min(1180px, calc(100% - 80px));
-  margin: 0 auto;
+  margin: 2px auto 0;
   z-index: 5;
 }
 
 .titles-header {
-  margin-bottom: 10px;
+  margin-bottom: 2px;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -534,7 +514,7 @@ button {
 
 .character-stage {
   position: relative;
-  min-height: 309px;
+  min-height: 180px;
   overflow: visible;
   display: flex;
   align-items: flex-end;
@@ -557,9 +537,9 @@ button {
 .giant-person {
   position: absolute;
   z-index: 20;
-  bottom: -55px;
+  bottom: -10px;
   left: 50%;
-  height: 440px;
+  height: 900px;
   width: auto;
   max-width: 390px;
   transform: translateX(-50%);
@@ -567,57 +547,6 @@ button {
   object-position: bottom;
   filter: drop-shadow(0 20px 35px rgba(0, 0, 0, 0.7));
   pointer-events: none;
-}
-
-.wadiya-tag {
-  position: absolute;
-  z-index: 30;
-  top: 30px;
-  right: 5px;
-  left: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  padding: 4px 9px;
-  background: #a7ff00;
-  color: #000;
-  border-radius: 3px;
-  font-size: 6px;
-  font-weight: 900;
-  line-height: 1;
-  letter-spacing: 0.4px;
-  transform: rotate(2deg);
-  box-shadow: 0 5px 16px rgba(167, 255, 0, 0.16);
-  white-space: nowrap;
-}
-
-.wadiya-tag strong {
-  font-size: 9px;
-  letter-spacing: -0.2px;
-}
-
-.wadiya-pointer {
-  position: absolute;
-  z-index: 29;
-  top: 100px;
-  right: 70px;
-  width: 50px;
-  height: 2px;
-  background: #a7ff00;
-  transform: rotate(120deg);
-  transform-origin: right center;
-}
-
-.wadiya-pointer span {
-  position: absolute;
-  left: -3px;
-  top: 50%;
-  width: 7px;
-  height: 7px;
-  transform: translateY(-50%);
-  border-radius: 50%;
-  background: #a7ff00;
-  box-shadow: 0 0 9px rgba(167, 255, 0, 0.8);
 }
 
 /* =================================
@@ -781,7 +710,6 @@ button {
   max-width: 320px;
   color: #ddd;
   font-size: 15px;
-  font-style: italic;
   line-height: 1.5;
 }
 
@@ -790,7 +718,11 @@ button {
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
-  margin: 2px 0 4px;
+
+  /* Position controls */
+  position: relative;
+  top: -100px;     /* + = down, - = up */
+  left: 200px;    /* + = right, - = left */
 }
 
 .social-pill {
@@ -1101,10 +1033,6 @@ button {
     height: 360px;
   }
 
-  .wadiya-tag {
-    right: 15%;
-  }
-
   .auction {
     height: auto;
     min-height: 190px;
@@ -1194,15 +1122,7 @@ button {
     bottom: -45px;
   }
 
-  .wadiya-tag {
-    right: 5%;
-    transform: rotate(2deg) scale(0.9);
-  }
-
-  .wadiya-pointer {
-    right: 40px;
-    width: 50px;
-  }
+ 
 
   .auction-content {
     grid-template-columns: 1fr;
@@ -1213,8 +1133,7 @@ button {
   }
 }
 
-/* Hide footer nav links, keep copyright centered */
-.footer-links {
+.footer-brand {
   display: none;
 }
 

@@ -9,12 +9,7 @@ export default function Footer() {
           <div className="brand-name">BOOMERS</div>
         </div>
 
-        <nav className="footer-links">
-          <Link to="/about">About / How It Works</Link>
-          <Link to="/contact">Contact / Support</Link>
-          <Link to="/terms">Terms &amp; Conditions</Link>
-          <Link to="/privacy">Privacy Policy</Link>
-        </nav>
+      
 
         <p className="footer-copyright">
           © {new Date().getFullYear()} BOOMERS. All rights reserved.

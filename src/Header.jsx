@@ -28,13 +28,13 @@ export default function Header({
           to="/about"
           className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
         >
-          About / How It Works
+          About
         </NavLink>
         <NavLink
           to="/contact"
           className={({ isActive }) => `nav-link${isActive ? " active" : ""}`}
         >
-          Contact / Support
+          Contact
         </NavLink>
         <NavLink
           to="/terms"
