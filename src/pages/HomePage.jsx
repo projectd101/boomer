@@ -65,7 +65,7 @@ function TitleCard({ item, selectedTitle, setSelectedTitle }) {
 
 function ReignBadge({ reignStartedAt }) {
   const elapsed = useReignTimer(reignStartedAt);
-  return <div className="reign-badge">Period of Your Reign: {elapsed}</div>;
+  return <div className="reign-badge">Period of Reign: {elapsed}</div>;
 }
 
 export default function HomePage() {
