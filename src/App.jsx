@@ -1,6 +1,7 @@
 import "./App.css";
 import "./modal.css";
 import "./liveFeatures.css";
+import "./legalPages.css";
 import { Routes, Route } from "react-router-dom";
 import Layout from "./Layout";
 import HomePage from "./pages/HomePage";
