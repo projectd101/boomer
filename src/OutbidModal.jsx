@@ -30,6 +30,7 @@ export default function OutbidModal({ selectedTitle, onClose, onComplete }) {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [cutoutBlob, setCutoutBlob] = useState(null);
   const [processing, setProcessing] = useState(false);
+  const [skipBackgroundRemoval, setSkipBackgroundRemoval] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [paying, setPaying] = useState(false);
   const [transactionId, setTransactionId] = useState(null);
@@ -218,57 +219,58 @@ const handlePay = async () => {
 };
 
 
-  const handleFileChange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+ const processImage = async (file, skipRemoval) => {
+  setError(null);
+  setProcessing(false);
+  setCutoutBlob(null);
 
-    setError(null);
-    setRawFile(file);
-    setPreviewUrl(URL.createObjectURL(file));
-    setCutoutBlob(null);
-    setProcessing(true);
+  if (skipRemoval) {
+    // Already transparent — use the original file directly.
+    setCutoutBlob(file);
+    return;
+  }
 
-    try {
-      const { removeBackground } = await import("@imgly/background-removal");
-      const blob = await removeBackground(file);
-      setCutoutBlob(blob);
-    } catch (err) {
-      console.error(err);
-      setError(
-        "Background removal failed — you can still submit the original image."
-      );
-    } finally {
-      setProcessing(false);
-    }
-  };
+  setProcessing(true);
 
-  const handleSubmit = async () => {
-    if (!rawFile) return;
-    setSubmitting(true);
-    setError(null);
+  try {
+    const { removeBackground } = await import(
+      "@imgly/background-removal"
+    );
 
-    try {
-      const finalBlob = cutoutBlob || rawFile;
-      const imageUrl = await uploadTitleImage(selectedTitle.id, finalBlob);
+    const blob = await removeBackground(file);
+    setCutoutBlob(blob);
+  } catch (err) {
+    console.error(err);
 
-      await onComplete({
-        userId: user.id,
-        bidder: displayName,
-        amount: nextBid,
-        country,
-        address,
-        favouriteQuote: quote,
-        imageUrl,
-      });
+    setError(
+      "Background removal failed — you can still submit the original image."
+    );
+  } finally {
+    setProcessing(false);
+  }
+};
 
-      setStep("done");
-    } catch (err) {
-      console.error(err);
-      setError(err.message || "Something went wrong. Try again.");
-    } finally {
-      setSubmitting(false);
-    }
-  };
+const handleFileChange = async (e) => {
+  const file = e.target.files?.[0];
+
+  if (!file) return;
+
+  setError(null);
+  setRawFile(file);
+  setPreviewUrl(URL.createObjectURL(file));
+
+  await processImage(file, skipBackgroundRemoval);
+};
+
+const handleSkipBackgroundRemovalChange = async (e) => {
+  const checked = e.target.checked;
+
+  setSkipBackgroundRemoval(checked);
+
+  if (!rawFile) return;
+
+  await processImage(rawFile, checked);
+};
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -411,6 +413,24 @@ const handlePay = async () => {
             >
               {rawFile ? "Choose a different image" : "Choose image"}
             </button>
+            <label className="transparent-image-checkbox">
+  <input
+    type="checkbox"
+    checked={skipBackgroundRemoval}
+    onChange={handleSkipBackgroundRemovalChange}
+  />
+
+  <span className="transparent-checkbox-box">
+    {skipBackgroundRemoval ? "✓" : ""}
+  </span>
+
+  <span className="transparent-checkbox-text">
+    <strong>Image already has transparent background</strong>
+    <small>
+      Skip automatic background removal
+    </small>
+  </span>
+</label>
 
             {previewUrl && (
               <div className="modal-preview">
@@ -420,18 +440,30 @@ const handlePay = async () => {
                 </div>
                 <div className="modal-preview-col">
                   <span className="modal-preview-label">
-                    {processing ? "Processing..." : "Cutout preview"}
-                  </span>
+  {processing
+    ? "Processing..."
+    : skipBackgroundRemoval
+    ? "Transparent image"
+    : "Cutout preview"}
+</span>
                   {processing ? (
-                    <div className="modal-preview-loading">✂️</div>
-                  ) : cutoutBlob ? (
-                    <img
-                      src={URL.createObjectURL(cutoutBlob)}
-                      alt="Cutout preview"
-                    />
-                  ) : (
-                    <div className="modal-preview-loading">—</div>
-                  )}
+  <div className="modal-preview-loading">✂️</div>
+) : cutoutBlob ? (
+  <img
+    src={
+      skipBackgroundRemoval
+        ? previewUrl
+        : URL.createObjectURL(cutoutBlob)
+    }
+    alt={
+      skipBackgroundRemoval
+        ? "Transparent image preview"
+        : "Cutout preview"
+    }
+  />
+) : (
+  <div className="modal-preview-loading">—</div>
+)}
                 </div>
               </div>
             )}

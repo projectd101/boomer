@@ -136,3 +136,35 @@ export async function upsertUserProfile(userId, fields) {
   if (error) throw error;
   return data;
 }
+export async function uploadUserAvatar(userId, file) {
+  if (!userId || !file) {
+    throw new Error("User and image are required.");
+  }
+
+  const extension = file.name?.split(".").pop()?.toLowerCase() || "png";
+  const path = `avatars/${userId}.${extension}`;
+
+  const { error: removeError } = await supabase.storage
+    .from(BUCKET)
+    .remove([path]);
+
+  // Ignore "file not found" when removing the previous avatar.
+  if (removeError && !removeError.message?.toLowerCase().includes("not found")) {
+    console.warn("Couldn't remove previous avatar:", removeError);
+  }
+
+  const { error: uploadError } = await supabase.storage
+    .from(BUCKET)
+    .upload(path, file, {
+      contentType: file.type || "image/png",
+      upsert: true,
+    });
+
+  if (uploadError) throw uploadError;
+
+  const { data } = supabase.storage
+    .from(BUCKET)
+    .getPublicUrl(path);
+
+  return `${data.publicUrl}?t=${Date.now()}`;
+}
