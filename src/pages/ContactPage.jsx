@@ -18,8 +18,8 @@ export default function ContactPage() {
               Account issues, payment questions, bugs, or anything else
               about using BOOMERS.
             </p>
-            <a className="contact-link" href="mailto:support@boomers.app">
-              support@boomers.app
+            <a className="contact-link" href="mailto:contact.kirkversary@gmail.com">
+              contact.kirkversary@gmail.com
             </a>
           </div>
 
@@ -29,8 +29,8 @@ export default function ContactPage() {
               Report impersonation, abusive content on a title page, or a
               violation of our Terms &amp; Conditions.
             </p>
-            <a className="contact-link" href="mailto:safety@boomers.app">
-              safety@boomers.app
+            <a className="contact-link" href="mailto:contact.kirkversary@gmail.com">
+              contact.kirkversary@gmail.com
             </a>
           </div>
 
@@ -40,8 +40,8 @@ export default function ContactPage() {
               Ask about the data we hold on you, or request that your
               account information be deleted.
             </p>
-            <a className="contact-link" href="mailto:privacy@boomers.app">
-              privacy@boomers.app
+            <a className="contact-link" href="mailto:contact.kirkversary@gmail.com">
+              contact.kirkversary@gmail.com
             </a>
           </div>
         </div>

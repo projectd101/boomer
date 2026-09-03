@@ -93,7 +93,7 @@ export default function TermsPage() {
         <h2 className="legal-subheading">10. Contact</h2>
         <p className="legal-body">
           Questions about these Terms can be sent to{" "}
-          <a href="mailto:support@boomers.app">support@boomers.app</a>.
+          <a href="mailto:contact.kirkversary@gmail.com">contact.kirkversary@gmail.com</a>.
         </p>
       </section>
     </main>

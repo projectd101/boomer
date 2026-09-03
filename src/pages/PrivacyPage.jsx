@@ -72,7 +72,7 @@ export default function PrivacyPage() {
           You can update your profile information, social handles, and
           uploaded image at any time while you hold a title. To request
           deletion of your account data, contact us at{" "}
-          <a href="mailto:privacy@boomers.app">privacy@boomers.app</a>.
+          <a href="mailto:contact.kirkversary@gmail.com">contact.kirkversary@gmail.com</a>.
           Note that information already shown publicly on a title page
           while you were the holder may have been cached, screenshotted,
           or archived by others outside our control.
@@ -87,7 +87,7 @@ export default function PrivacyPage() {
         <h2 className="legal-subheading">8. Contact</h2>
         <p className="legal-body">
           Questions about this policy can be sent to{" "}
-          <a href="mailto:privacy@boomers.app">privacy@boomers.app</a>.
+          <a href="mailto:contact.kirkversary@gmail.com">contact.kirkversary@gmail.com</a>.
         </p>
       </section>
     </main>
