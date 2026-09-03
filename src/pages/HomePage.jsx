@@ -201,12 +201,12 @@ export default function HomePage() {
           </p>
 
           <h1>
-            <span className="hero-line-one">BUY A TITLE.</span>
-            <span className="hero-line-two">BECOME LEGENDARY.</span>
+            <span className="hero-line-one">COMPETE FOR A TITLE. </span>
+            <span className="hero-line-two">EARN YOUR PLACE FOREVER.</span>
           </h1>
 
           <p className="hero-description">
-            Eight titles. One holder each. Outbid them. Take their identity.
+            Hold the title. Build W Aura. Survive the month.
           </p>
 
           {!currentUser ? (
@@ -273,14 +273,7 @@ export default function HomePage() {
 
             {selectedTitle && (
               <>
-                <div className="wadiya-tag">
-                  <span>{selectedTitle.holder}</span>
-                  <strong>{selectedTitle.title}</strong>
-                </div>
-
-                <div className="wadiya-pointer">
-                  <span />
-                </div>
+          
 
                 <img
                   className="giant-person"
