@@ -2,7 +2,7 @@ export default function ContactPage() {
   return (
     <main>
       <section className="legal-page">
-        <p className="eyebrow hero-eyebrow">GET IN TOUCH</p>
+        <p className="legal-eyebrow">GET IN TOUCH</p>
         <h1 className="legal-title">Contact &amp; Support</h1>
 
         <p className="legal-intro">

@@ -2,7 +2,7 @@ export default function TermsPage() {
   return (
     <main>
       <section className="legal-page">
-        <p className="eyebrow hero-eyebrow">LEGAL</p>
+        <p className="legal-eyebrow">LEGAL</p>
         <h1 className="legal-title">Terms &amp; Conditions</h1>
         <p className="legal-updated">Last updated: September 2026</p>
 

@@ -2,7 +2,7 @@ export default function AboutPage() {
   return (
     <main>
       <section className="legal-page">
-        <p className="eyebrow hero-eyebrow">ABOUT BOOMERS</p>
+        <p className="legal-eyebrow">ABOUT BOOMERS</p>
         <h1 className="legal-title">How It Works</h1>
 
         <p className="legal-intro">

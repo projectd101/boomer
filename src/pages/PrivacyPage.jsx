@@ -2,7 +2,7 @@ export default function PrivacyPage() {
   return (
     <main>
       <section className="legal-page">
-        <p className="eyebrow hero-eyebrow">LEGAL</p>
+        <p className="legal-eyebrow">LEGAL</p>
         <h1 className="legal-title">Privacy Policy</h1>
         <p className="legal-updated">Last updated: September 2026</p>
 
