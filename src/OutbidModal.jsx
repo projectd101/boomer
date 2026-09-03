@@ -13,6 +13,12 @@ import {
 } from "./supabaseClient";
 import { COUNTRY_OPTIONS } from "./countries";
 
+// Quick lookup from a saved country name (e.g. "Nepal") back to its
+// ISO 3166-1 alpha-2 code (e.g. "NP"), needed to pre-fill Paddle checkout.
+const countryNameToCode = Object.fromEntries(
+  COUNTRY_OPTIONS.map((c) => [c.name, c.code])
+);
+
 // Steps: "signin" -> "profile" -> "checkout" -> "upload" -> "done"
 export default function OutbidModal({ selectedTitle, onClose, onComplete }) {
   const [step, setStep] = useState("loading");
@@ -175,7 +181,11 @@ const handlePay = async () => {
     }
 
     // Ask our Vercel backend to create the transaction.
-    // The backend calculates the authoritative bid amount.
+    // The backend calculates the authoritative bid amount. We also send
+    // the user's country code so Paddle's transaction (and therefore the
+    // hosted checkout) can be pre-filled with it.
+    const countryCode = countryNameToCode[country] || null;
+
     const response = await fetch("/api/create-bid-transaction", {
       method: "POST",
       headers: {
@@ -184,6 +194,7 @@ const handlePay = async () => {
       },
       body: JSON.stringify({
         titleId: selectedTitle.id,
+        countryCode,
       }),
     });
 
@@ -208,8 +219,13 @@ const handlePay = async () => {
     transactionIdRef.current = result.transactionId;
     setTransactionId(result.transactionId);
 
-    // Open the actual Paddle Sandbox checkout.
-    await openPaddleTransactionCheckout(result.transactionId);
+    // Open the actual Paddle Sandbox checkout, pre-filled with the
+    // signed-in user's own email/country so they don't have to (and
+    // can't accidentally) type in a different email than their account.
+    await openPaddleTransactionCheckout(result.transactionId, {
+      email: user.email,
+      countryCode,
+    });
 
     setPaying(false);
   } catch (err) {

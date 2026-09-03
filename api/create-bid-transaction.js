@@ -77,7 +77,7 @@ export default async function handler(req, res) {
     // 2. Validate title ID
     // --------------------------------------------------
 
-    const { titleId } = req.body || {};
+    const { titleId, countryCode } = req.body || {};
     const numericTitleId = Number(titleId);
 
     if (!Number.isInteger(numericTitleId)) {
@@ -134,6 +134,16 @@ export default async function handler(req, res) {
     const nextBid = currentPrice + 5;
     const amountInCents = Math.round(nextBid * 100);
 
+    // Optional: a 2-letter ISO country code from the frontend (derived
+    // from the user's saved profile country), used purely to pre-fill
+    // Paddle's hosted checkout so the user isn't asked to re-type info
+    // we already have. Ignored if missing or malformed -- Paddle will
+    // just ask the user directly in that case.
+    const validCountryCode =
+      typeof countryCode === "string" && /^[A-Za-z]{2}$/.test(countryCode)
+        ? countryCode.toUpperCase()
+        : null;
+
     // --------------------------------------------------
     // 6. Create Paddle transaction
     // --------------------------------------------------
@@ -171,6 +181,20 @@ export default async function handler(req, res) {
           ],
 
           currency_code: "USD",
+
+          // Pre-fills the hosted checkout's "Your details" step with the
+          // signed-in user's own email/country instead of asking blind --
+          // avoids someone accidentally entering a different email than
+          // the account they're signed into.
+          customer: {
+            email: user.email,
+          },
+
+          ...(validCountryCode && {
+            address: {
+              country_code: validCountryCode,
+            },
+          }),
 
           custom_data: {
             app_user_id: user.id,

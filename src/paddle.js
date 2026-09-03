@@ -72,14 +72,28 @@ export async function setPaddleEventCallback(eventCallback) {
 }
 
 // Used after the backend creates a dynamic transaction for the bid.
-export async function openPaddleTransactionCheckout(transactionId) {
+// `customer` is optional: { email, countryCode } pre-fills Paddle's
+// hosted checkout with info we already have from the signed-in user's
+// profile, so they aren't asked to type an email/country blind (and risk
+// entering a different email than the Google account they're signed
+// into).
+export async function openPaddleTransactionCheckout(transactionId, customer) {
   if (!transactionId) {
     throw new Error("A Paddle transaction ID is required to open checkout.");
   }
 
   const paddle = await initializePaddle();
 
-  paddle.Checkout.open({
-    transactionId,
-  });
+  const checkoutOptions = { transactionId };
+
+  if (customer?.email) {
+    checkoutOptions.customer = {
+      email: customer.email,
+      ...(customer.countryCode && {
+        address: { countryCode: customer.countryCode },
+      }),
+    };
+  }
+
+  paddle.Checkout.open(checkoutOptions);
 }
