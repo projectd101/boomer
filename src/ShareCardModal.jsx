@@ -39,9 +39,7 @@ export default function ShareCardModal({ title, imageSrc, onClose }) {
   const [rendering, setRendering] = useState(true);
 
   const likes = seededLikes(title.id + "-" + (title.holder || ""));
-  const handle = (title.holder || "unknown")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "");
+  const holderName = title.holder || "Unknown";
 
   useEffect(() => {
     let cancelled = false;
@@ -108,19 +106,27 @@ export default function ShareCardModal({ title, imageSrc, onClose }) {
       ctx.textBaseline = "top";
       ctx.fillText("BOOMERS", 56, 56);
 
-      ctx.fillStyle = "#555";
-      ctx.font = "700 22px Arial";
-      ctx.fillText(`TITLE #${String(title.id).padStart(2, "0")}`, 56, 104);
+      ctx.fillStyle = "#777";
+      ctx.font = "700 18px Arial";
+      ctx.fillText(
+        "Visit boomer-theta.vercel.app to hold a title of your own.",
+        56,
+        104
+      );
+
+      ctx.fillStyle = "#444";
+      ctx.font = "700 20px Arial";
+      ctx.fillText(`TITLE #${String(title.id).padStart(2, "0")}`, 56, 138);
 
       // Title name, large
       ctx.fillStyle = "#fff";
       ctx.font = "900 64px Arial";
       wrapText(ctx, (title.title || "").toUpperCase(), 56, H - 430, W - 112, 66);
 
-      // Handle
+      // Holder's declared name
       ctx.fillStyle = "#a7ff00";
       ctx.font = "800 30px Arial";
-      ctx.fillText(`@${handle}`, 56, H - 250);
+      ctx.fillText(holderName, 56, H - 250);
 
       // Stat row: likes + bid amount
       const statY = H - 190;
@@ -130,7 +136,7 @@ export default function ShareCardModal({ title, imageSrc, onClose }) {
       ctx.fillText(likes, 56, statY);
       ctx.fillStyle = "#666";
       ctx.font = "700 20px Arial";
-      ctx.fillText("LIKES", 56, statY + 56);
+      ctx.fillText("PEOPLE VOTED", 56, statY + 56);
 
       const priceText = `$${Number(title.price || 0).toLocaleString()}`;
       ctx.textAlign = "right";
@@ -183,7 +189,7 @@ export default function ShareCardModal({ title, imageSrc, onClose }) {
     return () => {
       cancelled = true;
     };
-  }, [title, imageSrc, handle, likes]);
+  }, [title, imageSrc, holderName, likes]);
 
   const handleDownload = () => {
     if (!dataUrl) return;
