@@ -281,14 +281,17 @@ const handleSkipBackgroundRemovalChange = async (e) => {
     try {
       const fileToUpload = cutoutBlob || rawFile;
       const imageUrl = await uploadTitleImage(
-        user.id,
         selectedTitle.id,
         fileToUpload
       );
 
       await onComplete({
-        titleId: selectedTitle.id,
-        transactionId: transactionIdRef.current,
+        userId: user.id,
+        bidder: displayName,
+        amount: nextBid,
+        country,
+        address,
+        favouriteQuote: quote,
         imageUrl,
       });
 
