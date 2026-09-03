@@ -5,6 +5,7 @@ import {
   upsertUserProfile,
   uploadUserAvatar,
 } from "./supabaseClient";
+import { COUNTRY_OPTIONS } from "./countries";
 
 // Shared site header, used on every route via Layout.jsx.
 export default function Header({
@@ -397,15 +398,23 @@ export default function Header({
 
                 <label>
                   <span>COUNTRY</span>
-                  <input
+                  <select
                     className="profile-input"
                     value={country}
                     onChange={(e) =>
                       setCountry(e.target.value)
                     }
                     disabled={!editing || saving}
-                    placeholder="Your country"
-                  />
+                  >
+                    <option value="" disabled>
+                      Select your country
+                    </option>
+                    {COUNTRY_OPTIONS.map((c) => (
+                      <option key={c.code} value={c.name}>
+                        {c.label}
+                      </option>
+                    ))}
+                  </select>
                 </label>
 
                 <label>

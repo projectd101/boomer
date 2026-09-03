@@ -76,7 +76,8 @@ function ReignBadge({ reignStartedAt }) {
 }
 
 export default function HomePage() {
-  const { currentUser, handleSignIn } = useOutletContext();
+  const { currentUser, handleSignIn, setSuppressOnboarding } =
+    useOutletContext();
 
   const [titles, setTitles] = useState([]);
   const [selectedTitle, setSelectedTitle] = useState(null);
@@ -84,6 +85,8 @@ export default function HomePage() {
   const [error, setError] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+
+  const PENDING_OUTBID_KEY = "boomers_pending_outbid_title_id";
 
   useEffect(() => {
     async function fetchTitles() {
@@ -104,6 +107,32 @@ export default function HomePage() {
 
     fetchTitles();
   }, []);
+
+  // Resume an in-progress outbid after the Google OAuth redirect bounces
+  // the whole page back here. We stash the title id in localStorage right
+  // before redirecting (see the OUTBID button's onClick below is not
+  // where we stash it -- OutbidModal calls signInWithGoogle, so we stash
+  // it as soon as the modal is opened, since that's the only path that
+  // leads to a redirect).
+  useEffect(() => {
+    if (loading || !currentUser || titles.length === 0) return;
+
+    const pendingId = localStorage.getItem(PENDING_OUTBID_KEY);
+    if (!pendingId) return;
+
+    const pendingTitle = titles.find(
+      (t) => String(t.id) === String(pendingId)
+    );
+
+    if (pendingTitle) {
+      setSelectedTitle(pendingTitle);
+      setSuppressOnboarding?.(true);
+      setModalOpen(true);
+    }
+
+    localStorage.removeItem(PENDING_OUTBID_KEY);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, currentUser, titles]);
 
   useEffect(() => {
     const channel = supabase
@@ -393,7 +422,14 @@ export default function HomePage() {
 
               <button
                 className="claim-button"
-                onClick={() => setModalOpen(true)}
+                onClick={() => {
+                  localStorage.setItem(
+                    PENDING_OUTBID_KEY,
+                    String(selectedTitle.id)
+                  );
+                  setSuppressOnboarding?.(true);
+                  setModalOpen(true);
+                }}
               >
                 OUTBID FOR $
                 {(selectedTitle.price + 5).toLocaleString()}
@@ -439,8 +475,15 @@ export default function HomePage() {
         <OutbidModal
           selectedTitle={selectedTitle}
           minBid={selectedTitle.price + 5}
-          onClose={() => setModalOpen(false)}
-          onComplete={handleOutbidComplete}
+          onClose={() => {
+            localStorage.removeItem(PENDING_OUTBID_KEY);
+            setModalOpen(false);
+            setSuppressOnboarding?.(false);
+          }}
+          onComplete={async (payload) => {
+            localStorage.removeItem(PENDING_OUTBID_KEY);
+            await handleOutbidComplete(payload);
+          }}
         />
       )}
 

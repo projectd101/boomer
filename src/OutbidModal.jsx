@@ -11,6 +11,7 @@ import {
   upsertUserProfile,
   uploadTitleImage,
 } from "./supabaseClient";
+import { COUNTRY_OPTIONS } from "./countries";
 
 // Steps: "signin" -> "profile" -> "checkout" -> "upload" -> "done"
 export default function OutbidModal({ selectedTitle, onClose, onComplete }) {
@@ -363,13 +364,20 @@ const handleSkipBackgroundRemovalChange = async (e) => {
                 value={displayName}
                 onChange={(e) => setDisplayName(e.target.value)}
               />
-              <input
+              <select
                 className="modal-input"
-                type="text"
-                placeholder="Country"
                 value={country}
                 onChange={(e) => setCountry(e.target.value)}
-              />
+              >
+                <option value="" disabled>
+                  Select your country
+                </option>
+                {COUNTRY_OPTIONS.map((c) => (
+                  <option key={c.code} value={c.name}>
+                    {c.label}
+                  </option>
+                ))}
+              </select>
               <input
                 className="modal-input"
                 type="text"
