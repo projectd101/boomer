@@ -43,7 +43,7 @@ function TitleCard({ item, selectedTitle, setSelectedTitle, currentUser }) {
       } ${isOwned ? "owned" : ""}`}
       onClick={() => setSelectedTitle(item)}
     >
-      {isOwned && <div className="owned-badge">YOURS</div>}
+      {isOwned && <div className="owned-badge">YOU</div>}
 
       <div className="card-number">
         #{String(item.id).padStart(2, "0")}

@@ -426,7 +426,7 @@ button {
 .owned-badge {
   position: absolute;
   top: 12px;
-  right: 14px;
+  right: 34px;
   z-index: 5;
   padding: 2px 7px;
   border-radius: 999px;
