@@ -1004,8 +1004,8 @@ button {
 
 .share-icon-button {
   position: absolute;
-  right: 210px;
-  bottom: 54px;
+  right: 400px;
+  bottom: 100px;
   width: 46px;
   height: 46px;
   display: grid;
