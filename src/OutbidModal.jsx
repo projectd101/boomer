@@ -272,6 +272,35 @@ const handleSkipBackgroundRemovalChange = async (e) => {
   await processImage(rawFile, checked);
 };
 
+  const handleSubmit = async () => {
+    if (!rawFile) return;
+
+    setError(null);
+    setSubmitting(true);
+
+    try {
+      const fileToUpload = cutoutBlob || rawFile;
+      const imageUrl = await uploadTitleImage(
+        user.id,
+        selectedTitle.id,
+        fileToUpload
+      );
+
+      await onComplete({
+        titleId: selectedTitle.id,
+        transactionId: transactionIdRef.current,
+        imageUrl,
+      });
+
+      setStep("done");
+    } catch (err) {
+      console.error("Submit failed:", err);
+      setError(err.message || "Couldn't submit your image.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-box" onClick={(e) => e.stopPropagation()}>
