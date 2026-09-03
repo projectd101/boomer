@@ -193,9 +193,9 @@ export default function Header({
     <>
       <header className="header">
         <Link to="/" className="brand">
-          <div className="brand-mark">B</div>
-          <div className="brand-name">BOOMERS</div>
-        </Link>
+  <img src="/logo.png" alt="Boomers" className="brand-logo" />
+  <div className="brand-name">BOOMERS</div>
+</Link>
 
         <nav className="main-nav">
           <NavLink
