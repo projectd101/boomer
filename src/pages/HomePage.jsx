@@ -415,25 +415,11 @@ export default function HomePage() {
                       fill="none"
                     >
                       <path
-                        d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"
+                        d="M4 17c0-5 4-9 9-9V4l7 6-7 6v-4c-4 0-7 2-9 5z"
                         stroke="#000"
-                        strokeWidth="2"
-                        strokeLinecap="round"
+                        strokeWidth="1.6"
                         strokeLinejoin="round"
-                      />
-                      <path
-                        d="M16 8l-4-4-4 4"
-                        stroke="#000"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                      <path
-                        d="M12 4v13"
-                        stroke="#000"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
+                        fill="#000"
                       />
                     </svg>
                   </button>
