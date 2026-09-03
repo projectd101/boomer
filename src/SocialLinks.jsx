@@ -144,7 +144,7 @@ export default function SocialLinks({
       )}
 
       {!hasAny && !isOwner && (
-        <span className="social-empty">No socials linked</span>
+        <span className="social-empty"> </span>
       )}
 
       {isOwner && (

@@ -81,42 +81,58 @@
 /* =================================
    LEGAL / INFO PAGES
    (About, Contact, Terms, Privacy)
+
+   Matches the homepage system: 900-weight display type with
+   tight negative tracking, the same #666/9px/800/3px eyebrow,
+   #a7ff00 accent, #111 card surface on #242424 borders, 12px
+   radius. This is the same brand, not a separate theme.
 ================================= */
 
 .legal-page {
   width: min(760px, calc(100% - 80px));
   margin: 0 auto;
-  padding: 10px 0 60px;
+  padding: 16px 0 60px;
+}
+
+.legal-eyebrow {
+  margin: 0 0 13px;
+  color: #666;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 3px;
 }
 
 .legal-title {
-  margin: 10px 0 6px;
-  font-size: clamp(32px, 4.5vw, 46px);
+  margin: 0 0 14px;
+  font-size: clamp(30px, 4vw, 42px);
+  line-height: 0.95;
   font-weight: 900;
-  letter-spacing: -1.5px;
-  line-height: 1.05;
+  letter-spacing: -2px;
 }
 
 .legal-updated {
-  margin: 0 0 24px;
+  margin: 0 0 28px;
   color: #555;
-  font-size: 11px;
+  font-size: 9px;
   font-weight: 700;
-  letter-spacing: 0.4px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 .legal-intro {
-  margin: 0 0 32px;
-  color: #bbb;
+  margin: 0 0 36px;
+  color: #999;
   font-size: 14px;
-  line-height: 1.7;
+  line-height: 1.75;
+  max-width: 640px;
 }
 
 .legal-subheading {
-  margin: 34px 0 10px;
-  font-size: 17px;
+  margin: 40px 0 10px;
+  font-size: 20px;
+  line-height: 1.1;
   font-weight: 900;
-  letter-spacing: -0.3px;
+  letter-spacing: -0.8px;
 }
 
 .legal-body {
@@ -127,12 +143,13 @@
 }
 
 .legal-body strong {
-  color: #ddd;
+  color: #eee;
 }
 
 .legal-body a,
 .legal-intro a {
   color: #a7ff00;
+  font-weight: 700;
   text-decoration: none;
 }
 
@@ -141,34 +158,44 @@
   text-decoration: underline;
 }
 
+/* Steps ARE a real sequence (pick title -> outbid -> take identity),
+   so numbering stays — but styled as the same weighted accent label
+   the rest of the product uses instead of a bare number. */
 .legal-steps {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  gap: 9px;
   margin: 0 0 20px;
 }
 
 .legal-step {
-  padding: 20px;
-  border: 1px solid #1e1e1e;
+  padding: 18px 16px;
+  border: 1px solid #242424;
   border-radius: 12px;
-  background: #101010;
+  background: #111;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.legal-step:hover {
+  transform: translateY(-3px);
+  border-color: #444;
+  background: #141414;
 }
 
 .legal-step-number {
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   color: #a7ff00;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: 1.5px;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 2px;
 }
 
 .legal-step h3 {
   margin: 0 0 8px;
   font-size: 15px;
   font-weight: 900;
-  letter-spacing: -0.3px;
+  letter-spacing: -0.4px;
 }
 
 .legal-step p {
@@ -195,22 +222,29 @@
 .contact-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  gap: 9px;
   margin: 0 0 20px;
 }
 
 .contact-card {
-  padding: 22px;
-  border: 1px solid #1e1e1e;
+  padding: 20px;
+  border: 1px solid #242424;
   border-radius: 12px;
-  background: #101010;
+  background: #111;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+
+.contact-card:hover {
+  transform: translateY(-3px);
+  border-color: #444;
+  background: #141414;
 }
 
 .contact-card h3 {
   margin: 0 0 8px;
   font-size: 15px;
   font-weight: 900;
-  letter-spacing: -0.3px;
+  letter-spacing: -0.4px;
 }
 
 .contact-card p {
