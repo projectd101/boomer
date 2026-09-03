@@ -5,6 +5,7 @@ import { countryToFlag } from "../flags";
 import { useReignTimer } from "../useReignTimer";
 import AuraWidget from "../AuraWidget";
 import OutbidModal from "../OutbidModal";
+import ShareCardModal from "../ShareCardModal";
 import WavingFlag from "../WavingFlag";
 import SocialLinks from "../SocialLinks";
 import person01 from "../assets/01person.png";
@@ -82,6 +83,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   useEffect(() => {
     async function fetchTitles() {
@@ -397,6 +399,45 @@ export default function HomePage() {
                 {(selectedTitle.price + 5).toLocaleString()}
                 <span>→</span>
               </button>
+
+              {Boolean(currentUser?.id) &&
+                currentUser.id === selectedTitle.holder_user_id && (
+                  <button
+                    className="share-icon-button"
+                    onClick={() => setShareOpen(true)}
+                    type="button"
+                    aria-label="Share your title"
+                  >
+                    <svg
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                    >
+                      <path
+                        d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"
+                        stroke="#000"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M16 8l-4-4-4 4"
+                        stroke="#000"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                      <path
+                        d="M12 4v13"
+                        stroke="#000"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+                )}
             </div>
           </div>
         </section>
@@ -414,6 +455,14 @@ export default function HomePage() {
           minBid={selectedTitle.price + 5}
           onClose={() => setModalOpen(false)}
           onComplete={handleOutbidComplete}
+        />
+      )}
+
+      {shareOpen && selectedTitle && (
+        <ShareCardModal
+          title={selectedTitle}
+          imageSrc={getImageSrc(selectedTitle)}
+          onClose={() => setShareOpen(false)}
         />
       )}
     </main>
