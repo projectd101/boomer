@@ -31,14 +31,20 @@ function getImageSrc(item) {
   return item.image_url || imageMap[item.image_key];
 }
 
-function TitleCard({ item, selectedTitle, setSelectedTitle }) {
+function TitleCard({ item, selectedTitle, setSelectedTitle, currentUser }) {
+  const isOwned = Boolean(
+    currentUser?.id && item.holder_user_id === currentUser.id
+  );
+
   return (
     <button
       className={`title-card ${
         selectedTitle?.id === item.id ? "active" : ""
-      }`}
+      } ${isOwned ? "owned" : ""}`}
       onClick={() => setSelectedTitle(item)}
     >
+      {isOwned && <div className="owned-badge">YOURS</div>}
+
       <div className="card-number">
         #{String(item.id).padStart(2, "0")}
       </div>
@@ -264,6 +270,7 @@ export default function HomePage() {
                 item={item}
                 selectedTitle={selectedTitle}
                 setSelectedTitle={setSelectedTitle}
+                currentUser={currentUser}
               />
             ))}
           </div>
@@ -291,6 +298,7 @@ export default function HomePage() {
                 item={item}
                 selectedTitle={selectedTitle}
                 setSelectedTitle={setSelectedTitle}
+                currentUser={currentUser}
               />
             ))}
           </div>

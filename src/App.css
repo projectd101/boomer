@@ -406,6 +406,37 @@ button {
     0 10px 30px rgba(167, 255, 0, 0.05);
 }
 
+.title-card.owned {
+  border-color: #a7ff00;
+  background: rgba(167, 255, 0, 0.08);
+  box-shadow: 0 0 0 1px rgba(167, 255, 0, 0.25);
+}
+
+.title-card.owned:hover {
+  background: rgba(167, 255, 0, 0.12);
+  border-color: #a7ff00;
+}
+
+.title-card.owned.active {
+  box-shadow:
+    0 0 0 1px rgba(167, 255, 0, 0.35),
+    0 10px 30px rgba(167, 255, 0, 0.15);
+}
+
+.owned-badge {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  z-index: 5;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #a7ff00;
+  color: #0a0a0a;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
 .card-number {
   position: absolute;
   top: 12px;
