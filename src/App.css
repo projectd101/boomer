@@ -317,6 +317,12 @@ button {
   display: none;
 }
 
+@media (max-width: 850px) {
+  .hero-visual-tag {
+    display: none;
+  }
+}
+
 .eyebrow {
   margin: 0;
   color: #666;
@@ -579,6 +585,103 @@ button {
   object-position: bottom;
   filter: drop-shadow(0 20px 35px rgba(0, 0, 0, 0.7));
   pointer-events: none;
+}
+
+/* =================================
+   CURRENT TITLE BADGE
+================================= */
+
+.stage-tag {
+  position: absolute;
+  z-index: 35;
+
+  /* slightly lower than before */
+  top: -235px;
+  left: calc(50% + 42px);
+
+  /* wide enough to show the complete title */
+  width: 285px;
+  max-width: 285px;
+  min-width: 285px;
+
+  padding: 10px 15px 11px 17px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  border: 1px solid rgba(167, 255, 0, 0.42);
+  border-radius: 9px;
+  background: rgba(12, 12, 12, 0.95);
+
+  /* no green glow */
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+
+  backdrop-filter: blur(8px);
+
+  /* completely static */
+  transform: rotate(-2deg);
+  transform-origin: left bottom;
+}
+
+.stage-tag-pin {
+  position: relative;
+  flex: 0 0 9px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #a7ff00;
+  /* no glow */
+}
+
+.stage-tag-pin::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: #050505;
+}
+
+.stage-tag-content {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.stage-tag-kicker {
+  color: #a7ff00;
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: 1.8px;
+  line-height: 1;
+  /* no glow */
+}
+
+.stage-tag-label {
+  display: block;
+  overflow: visible;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: -0.35px;
+  line-height: 1.05;
+  white-space: nowrap;
+  text-overflow: clip;
+  /* no glow */
+}
+
+.stage-tag:hover {
+  transform: rotate(-2deg);
+  border-color: rgba(167, 255, 0, 0.55);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+}
+
+@media (max-width: 850px) {
+  .stage-tag {
+    display: none;
+  }
 }
 
 /* =================================

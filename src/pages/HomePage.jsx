@@ -134,6 +134,11 @@ export default function HomePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, currentUser, titles]);
 
+  // This subscription is now the source of truth for a win. The Paddle
+  // webhook (server-side) is the only thing that ever writes `titles`,
+  // so this is what actually notifies the UI -- and what OutbidModal's
+  // "waiting" step watches for -- once a payment has genuinely been
+  // confirmed.
   useEffect(() => {
     const channel = supabase
       .channel("titles-changes")
@@ -160,47 +165,23 @@ export default function HomePage() {
   const leftTitles = titles.slice(0, 4);
   const rightTitles = titles.slice(4, 8);
 
-  const handleOutbidComplete = async ({
-    userId,
-    bidder,
-    amount,
-    country,
-    address,
-    favouriteQuote,
-    imageUrl,
-  }) => {
-    const { error: bidError } = await supabase.from("bids").insert({
-      title_id: selectedTitle.id,
-      user_id: userId,
-      bidder,
-      amount,
-      country,
-      address,
-      favourite_quote: favouriteQuote,
-    });
-
-    if (bidError) throw bidError;
+  // By the time this runs, the webhook has already applied the win
+  // (price/holder/bids row) -- confirmed via the realtime subscription
+  // above, which is what moves OutbidModal out of its "waiting" step.
+  // The only remaining client-side write is attaching the uploaded
+  // image to the title the user now legitimately holds.
+  const handleOutbidComplete = async ({ imageUrl }) => {
+    if (!selectedTitle) return;
 
     const { error: titleError } = await supabase
       .from("titles")
       .update({ image_url: imageUrl })
-      .eq("id", selectedTitle.id);
+      .eq("id", selectedTitle.id)
+      .eq("holder_user_id", currentUser?.id); // can only attach an image to a title you actually hold
 
     if (titleError) throw titleError;
 
-    const updated = {
-      ...selectedTitle,
-      holder: bidder,
-      price: amount,
-      holder_country: country,
-      holder_address: address,
-      holder_quote: favouriteQuote,
-      holder_user_id: userId,
-      image_url: imageUrl,
-      reign_started_at: new Date().toISOString(),
-      aura: 0,
-    };
-
+    const updated = { ...selectedTitle, image_url: imageUrl };
     setSelectedTitle(updated);
     setTitles((prev) =>
       prev.map((t) => (t.id === selectedTitle.id ? updated : t))
@@ -234,7 +215,7 @@ export default function HomePage() {
       <section className="hero">
         <div className="hero-copy">
           <p className="eyebrow hero-eyebrow">
-            THE INTERNET'S MOST UNHINGED MARKETPLACE
+             
           </p>
 
           <h1>
@@ -243,7 +224,7 @@ export default function HomePage() {
           </h1>
 
           <p className="hero-description">
-            Hold the title. Build W Aura. Survive the month.
+            At the end of the month, the highest bidder for each title will become the permanent holder. The holder's name, country, address, and favourite quote will be displayed on the title's public page for all to see. You can also upload a custom image to represent your reign.
           </p>
 
           {!currentUser ? (
@@ -311,13 +292,18 @@ export default function HomePage() {
 
             {selectedTitle && (
               <>
-          
-
                 <img
                   className="giant-person"
                   src={getImageSrc(selectedTitle)}
                   alt={selectedTitle.title}
                 />
+                <div className="stage-tag" aria-label={`Current title: ${selectedTitle.title}`}>
+                  <span className="stage-tag-pin" />
+                  <div className="stage-tag-content">
+                    <span className="stage-tag-kicker">CURRENT TITLE</span>
+                    <span className="stage-tag-label">{selectedTitle.title}</span>
+                  </div>
+                </div>
               </>
             )}
           </div>
@@ -474,7 +460,6 @@ export default function HomePage() {
       {modalOpen && selectedTitle && (
         <OutbidModal
           selectedTitle={selectedTitle}
-          minBid={selectedTitle.price + 5}
           onClose={() => {
             localStorage.removeItem(PENDING_OUTBID_KEY);
             setModalOpen(false);

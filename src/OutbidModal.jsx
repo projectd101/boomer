@@ -19,20 +19,28 @@ const countryNameToCode = Object.fromEntries(
   COUNTRY_OPTIONS.map((c) => [c.name, c.code])
 );
 
-// Steps: "signin" -> "profile" -> "checkout" -> "upload" -> "done"
+// Steps: "signin" -> "profile" -> "checkout" -> "waiting" -> "upload" -> "done"
+//
+// IMPORTANT: this modal no longer writes to `titles` or `bids` itself.
+// Those writes only happen server-side, inside the Paddle webhook
+// (/api/paddle-webhook), after Paddle confirms the payment actually
+// captured. The client-side "checkout.completed" event is NOT proof of
+// payment -- it's just Paddle's UI telling us its overlay finished; it
+// can fire from stale state or be spoofed via devtools. So instead of
+// writing the DB here, we wait for HomePage's realtime subscription to
+// see the title's row actually change (driven by the webhook) and
+// treat THAT as confirmation.
 export default function OutbidModal({ selectedTitle, onClose, onComplete }) {
   const [step, setStep] = useState("loading");
   const [user, setUser] = useState(null);
   const [profile, setProfile] = useState(null);
 
-  // Profile form fields
   const [displayName, setDisplayName] = useState("");
   const [country, setCountry] = useState("");
   const [address, setAddress] = useState("");
   const [quote, setQuote] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
 
-  // Upload state
   const [rawFile, setRawFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [cutoutBlob, setCutoutBlob] = useState(null);
@@ -43,12 +51,11 @@ export default function OutbidModal({ selectedTitle, onClose, onComplete }) {
   const [transactionId, setTransactionId] = useState(null);
   const transactionIdRef = useRef(null);
   const [error, setError] = useState(null);
+  const [waitTimedOut, setWaitTimedOut] = useState(false);
   const fileInputRef = useRef(null);
 
   const nextBid = selectedTitle.price + 5;
 
-  // On mount: check current session. If already signed in with a complete
-  // profile, skip straight to checkout.
   useEffect(() => {
     let active = true;
 
@@ -92,7 +99,6 @@ export default function OutbidModal({ selectedTitle, onClose, onComplete }) {
     setError(null);
     try {
       await signInWithGoogle();
-      // Page will redirect to Google and back; nothing else to do here.
     } catch (err) {
       setError(err.message || "Google sign-in failed.");
     }
@@ -125,11 +131,7 @@ export default function OutbidModal({ selectedTitle, onClose, onComplete }) {
 
   useEffect(() => {
     initializePaddle((event) => {
-      // Fires for every Paddle checkout event: checkout.loaded,
-      // checkout.customer.created, checkout.completed, checkout.closed, etc.
       if (event?.name === "checkout.completed") {
-        // Only react if this completion matches the transaction we opened,
-        // so a stale/duplicate event can't fire us into the wrong step.
         const completedId =
           event?.data?.transaction_id || event?.data?.id;
         if (
@@ -139,12 +141,12 @@ export default function OutbidModal({ selectedTitle, onClose, onComplete }) {
         ) {
           setPaying(false);
           setError(null);
-          setStep("upload");
+          // Do NOT move to "upload" here and do NOT write the DB.
+          // This event only means Paddle's overlay finished -- the
+          // actual payment confirmation comes from the webhook, which
+          // we wait for below.
+          setStep("waiting");
 
-          // Auto-dismiss Paddle's "transaction completed" screen instead
-          // of waiting for the person to click its close (X) button.
-          // A short delay lets Paddle finish its own completion animation
-          // first so the close doesn't look abrupt.
           setTimeout(() => {
             try {
               window.Paddle?.Checkout?.close?.();
@@ -164,134 +166,132 @@ export default function OutbidModal({ selectedTitle, onClose, onComplete }) {
     });
   }, []);
 
-const handlePay = async () => {
-  setError(null);
-  setPaying(true);
+  // While waiting for Paddle's server-to-server webhook to actually
+  // apply the win, watch this title's row for the change. HomePage
+  // already keeps `titles` live via a realtime subscription and passes
+  // the freshest copy down as `selectedTitle`, so we just watch for it
+  // to reflect this user + this bid amount.
+  useEffect(() => {
+    if (step !== "waiting") return;
 
-  try {
-    // Make sure the user is still authenticated.
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    setWaitTimedOut(false);
 
-    const accessToken = session?.access_token;
-
-    if (!accessToken) {
-      throw new Error("Your session expired. Please sign in again.");
+    if (
+      selectedTitle.holder_user_id === user?.id &&
+      selectedTitle.price === nextBid
+    ) {
+      setStep("upload");
+      return;
     }
 
-    // Ask our Vercel backend to create the transaction.
-    // The backend calculates the authoritative bid amount. We also send
-    // the user's country code so Paddle's transaction (and therefore the
-    // hosted checkout) can be pre-filled with it.
-    const countryCode = countryNameToCode[country] || null;
+    const timeout = setTimeout(() => setWaitTimedOut(true), 20000);
+    return () => clearTimeout(timeout);
+  }, [step, selectedTitle, user, nextBid]);
 
-    const response = await fetch("/api/create-bid-transaction", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${accessToken}`,
-      },
-      body: JSON.stringify({
-        titleId: selectedTitle.id,
+  const handlePay = async () => {
+    setError(null);
+    setPaying(true);
+
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      const accessToken = session?.access_token;
+
+      if (!accessToken) {
+        throw new Error("Your session expired. Please sign in again.");
+      }
+
+      const countryCode = countryNameToCode[country] || null;
+
+      const response = await fetch("/api/create-bid-transaction", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          titleId: selectedTitle.id,
+          countryCode,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          result?.error || "Couldn't prepare the Paddle transaction."
+        );
+      }
+
+      if (!result?.transactionId) {
+        throw new Error(
+          "The server did not return a Paddle transaction ID."
+        );
+      }
+
+      transactionIdRef.current = result.transactionId;
+      setTransactionId(result.transactionId);
+
+      await openPaddleTransactionCheckout(result.transactionId, {
+        email: user.email,
         countryCode,
-      }),
-    });
+      });
 
-    const result = await response.json();
-
-    console.log("Bid transaction response:", result);
-
-    if (!response.ok) {
-      throw new Error(
-        result?.error || "Couldn't prepare the Paddle transaction."
-      );
+      setPaying(false);
+    } catch (err) {
+      console.error("Paddle checkout setup failed:", err);
+      setPaying(false);
+      setError(err.message || "Couldn't open Paddle checkout.");
     }
+  };
 
-    if (!result?.transactionId) {
-      throw new Error(
-        "The server did not return a Paddle transaction ID."
-      );
-    }
-
-    // Remember the transaction so we can match Paddle's
-    // checkout.completed event later.
-    transactionIdRef.current = result.transactionId;
-    setTransactionId(result.transactionId);
-
-    // Open the actual Paddle Sandbox checkout, pre-filled with the
-    // signed-in user's own email/country so they don't have to (and
-    // can't accidentally) type in a different email than their account.
-    await openPaddleTransactionCheckout(result.transactionId, {
-      email: user.email,
-      countryCode,
-    });
-
-    setPaying(false);
-  } catch (err) {
-    console.error("Paddle checkout setup failed:", err);
-    setPaying(false);
-    setError(err.message || "Couldn't open Paddle checkout.");
-  }
-};
-
-
- const processImage = async (file, skipRemoval) => {
-  setError(null);
-  setProcessing(false);
-  setCutoutBlob(null);
-
-  if (skipRemoval) {
-    // Already transparent — use the original file directly.
-    setCutoutBlob(file);
-    return;
-  }
-
-  setProcessing(true);
-
-  try {
-    const { removeBackground } = await import(
-      "@imgly/background-removal"
-    );
-
-    const blob = await removeBackground(file);
-    setCutoutBlob(blob);
-  } catch (err) {
-    console.error(err);
-
-    setError(
-      "Background removal failed — you can still submit the original image."
-    );
-  } finally {
+  const processImage = async (file, skipRemoval) => {
+    setError(null);
     setProcessing(false);
-  }
-};
+    setCutoutBlob(null);
 
-const handleFileChange = async (e) => {
-  const file = e.target.files?.[0];
+    if (skipRemoval) {
+      setCutoutBlob(file);
+      return;
+    }
 
-  if (!file) return;
+    setProcessing(true);
 
-  setError(null);
-  setRawFile(file);
-  setPreviewUrl(URL.createObjectURL(file));
+    try {
+      const { removeBackground } = await import(
+        "@imgly/background-removal"
+      );
 
-  await processImage(file, skipBackgroundRemoval);
-};
+      const blob = await removeBackground(file);
+      setCutoutBlob(blob);
+    } catch (err) {
+      console.error("Background removal failed:", err);
+      setError("Couldn't remove the background. Try again or use a pre-cut image.");
+    } finally {
+      setProcessing(false);
+    }
+  };
 
-const handleSkipBackgroundRemovalChange = async (e) => {
-  const checked = e.target.checked;
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  setSkipBackgroundRemoval(checked);
+    setRawFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+    processImage(file, skipBackgroundRemoval);
+  };
 
-  if (!rawFile) return;
-
-  await processImage(rawFile, checked);
-};
+  const handleSkipBackgroundRemovalChange = (e) => {
+    const checked = e.target.checked;
+    setSkipBackgroundRemoval(checked);
+    if (rawFile) {
+      processImage(rawFile, checked);
+    }
+  };
 
   const handleSubmit = async () => {
-    if (!rawFile) return;
-
     setError(null);
     setSubmitting(true);
 
@@ -302,15 +302,11 @@ const handleSkipBackgroundRemovalChange = async (e) => {
         fileToUpload
       );
 
-      await onComplete({
-        userId: user.id,
-        bidder: displayName,
-        amount: nextBid,
-        country,
-        address,
-        favouriteQuote: quote,
-        imageUrl,
-      });
+      // Only the image upload is a client-side write at this point --
+      // price/holder/bids were already applied by the webhook before
+      // we ever reached this step. This just attaches the photo to
+      // the title this user now legitimately holds.
+      await onComplete({ imageUrl });
 
       setStep("done");
     } catch (err) {
@@ -445,6 +441,24 @@ const handleSkipBackgroundRemovalChange = async (e) => {
           </>
         )}
 
+        {step === "waiting" && (
+          <>
+            <h2 className="modal-title">Confirming your payment...</h2>
+            <p className="modal-sub">
+              Hang tight — we're verifying your payment with Paddle. This
+              usually only takes a few seconds.
+            </p>
+            {waitTimedOut && (
+              <p className="modal-error">
+                This is taking longer than expected. Your payment may still
+                be processing — please don't pay again. If this title
+                doesn't update in a minute or two, contact support with
+                your transaction ID.
+              </p>
+            )}
+          </>
+        )}
+
         {step === "upload" && (
           <>
             <h2 className="modal-title">Upload your image</h2>
@@ -470,23 +484,23 @@ const handleSkipBackgroundRemovalChange = async (e) => {
               {rawFile ? "Choose a different image" : "Choose image"}
             </button>
             <label className="transparent-image-checkbox">
-  <input
-    type="checkbox"
-    checked={skipBackgroundRemoval}
-    onChange={handleSkipBackgroundRemovalChange}
-  />
+              <input
+                type="checkbox"
+                checked={skipBackgroundRemoval}
+                onChange={handleSkipBackgroundRemovalChange}
+              />
 
-  <span className="transparent-checkbox-box">
-    {skipBackgroundRemoval ? "✓" : ""}
-  </span>
+              <span className="transparent-checkbox-box">
+                {skipBackgroundRemoval ? "✓" : ""}
+              </span>
 
-  <span className="transparent-checkbox-text">
-    <strong>Image already has transparent background</strong>
-    <small>
-      Skip automatic background removal
-    </small>
-  </span>
-</label>
+              <span className="transparent-checkbox-text">
+                <strong>Image already has transparent background</strong>
+                <small>
+                  Skip automatic background removal
+                </small>
+              </span>
+            </label>
 
             {previewUrl && (
               <div className="modal-preview">
@@ -496,30 +510,30 @@ const handleSkipBackgroundRemovalChange = async (e) => {
                 </div>
                 <div className="modal-preview-col">
                   <span className="modal-preview-label">
-  {processing
-    ? "Processing..."
-    : skipBackgroundRemoval
-    ? "Transparent image"
-    : "Cutout preview"}
-</span>
+                    {processing
+                      ? "Processing..."
+                      : skipBackgroundRemoval
+                      ? "Transparent image"
+                      : "Cutout preview"}
+                  </span>
                   {processing ? (
-  <div className="modal-preview-loading">✂️</div>
-) : cutoutBlob ? (
-  <img
-    src={
-      skipBackgroundRemoval
-        ? previewUrl
-        : URL.createObjectURL(cutoutBlob)
-    }
-    alt={
-      skipBackgroundRemoval
-        ? "Transparent image preview"
-        : "Cutout preview"
-    }
-  />
-) : (
-  <div className="modal-preview-loading">—</div>
-)}
+                    <div className="modal-preview-loading">✂️</div>
+                  ) : cutoutBlob ? (
+                    <img
+                      src={
+                        skipBackgroundRemoval
+                          ? previewUrl
+                          : URL.createObjectURL(cutoutBlob)
+                      }
+                      alt={
+                        skipBackgroundRemoval
+                          ? "Transparent image preview"
+                          : "Cutout preview"
+                      }
+                    />
+                  ) : (
+                    <div className="modal-preview-loading">—</div>
+                  )}
                 </div>
               </div>
             )}
