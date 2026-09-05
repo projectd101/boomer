@@ -300,7 +300,7 @@ export default function HomePage() {
                 <div className="stage-tag" aria-label={`Current title: ${selectedTitle.title}`}>
                   <span className="stage-tag-pin" />
                   <div className="stage-tag-content">
-                    <span className="stage-tag-kicker">CURRENT TITLE</span>
+                    <span className="stage-tag-kicker">OFFICIALLY</span>
                     <span className="stage-tag-label">{selectedTitle.title}</span>
                   </div>
                 </div>
